@@ -23,13 +23,14 @@ if __name__ == "__main__":
     # api_name = sys.argv[3]
 
     config_name = "/media/nimashiri/SSD/FSE23_2/fuzzing/config/expr.conf"
-    library = "tf"
+    library = "torch"
 
     buggy_api = "/media/nimashiri/SSD/testing_results/runcrash.txt"
     data = read_txt(buggy_api)
 
     freefuzz_cfg = configparser.ConfigParser()
-    freefuzz_cfg.read(join(__file__.replace("freefuzz_api.py", "config"), config_name))
+    freefuzz_cfg.read(join(__file__.replace(
+        "freefuzz_api.py", "config"), config_name))
 
     # database configuration
     mongo_cfg = freefuzz_cfg["mongodb"]
@@ -71,7 +72,8 @@ if __name__ == "__main__":
             cuda_oracle = False
         # Pytorch TEST
 
-        MyTorch = TorchLibrary(torch_output_dir, diff_bound, time_bound, time_thresold)
+        MyTorch = TorchLibrary(
+            torch_output_dir, diff_bound, time_bound, time_thresold)
         for api_name in data:
             print("###########################")
             print(api_name)

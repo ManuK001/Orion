@@ -27,13 +27,15 @@ class TorchLibrary(Library):
                 f.write(code)
             _, error = self.run_code(code)
             # if error == None:
-            #     self.write_to_dir(join(self.output[oracle], "success"), api.api, code)
-            # elif self.is_crash_msg(error):
             #     self.write_to_dir(
-            #         join(self.output[oracle], "potential-bug"), api.api, code
-            #     )
+            #         join(self.output[oracle], "success"), api.api, code)
+            if self.is_crash_msg(error):
+                self.write_to_dir(
+                    join(self.output[oracle], "potential-bug"), api.api, code
+                )
             # else:
-            #     self.write_to_dir(join(self.output[oracle], "fail"), api.api, code)
+            #     self.write_to_dir(
+            #         join(self.output[oracle], "fail"), api.api, code)
         elif oracle == OracleType.CUDA:
             code = "import torch\n"
             code += api.to_code(
@@ -54,43 +56,44 @@ class TorchLibrary(Library):
 
             results, error = self.run_code(code)
 
-            write_dir = ""
-            if error == None:
-                # first check the correctness
-                if results[ERR_CPU_KEY] == None and results[ERR_GPU_KEY] == None:
-                    try:
-                        is_equal = self.is_equal(
-                            results[RES_CPU_KEY], results[RES_GPU_KEY], self.diff_bound
-                        )
-                    except Exception:
-                        write_dir = join(self.output[oracle], "compare-bug")
-                    else:
-                        if is_equal:
-                            write_dir = join(self.output[oracle], "success")
-                        else:
-                            write_dir = join(self.output[oracle], "potential-bug")
-                elif self.is_crash_msg(results[ERR_CPU_KEY]) or self.is_crash_msg(
-                    results[ERR_GPU_KEY]
-                ):
-                    write_dir = join(self.output[oracle], "potential-bug")
-                elif results[ERR_CPU_KEY] and results[ERR_GPU_KEY]:
-                    write_dir = join(self.output[oracle], "success")
-                    pass
-                elif self.is_error_msg(results[ERR_CPU_KEY]) != self.is_error_msg(
-                    results[ERR_GPU_KEY]
-                ):
-                    write_dir = join(self.output[oracle], "potential-bug")
-                else:
-                    write_dir = join(self.output[oracle], "success")
-            elif self.is_crash_msg(error):
-                write_dir = join(self.output[oracle], "potential-bug")
-            else:
-                write_dir = join(self.output[oracle], "fail")
-            self.write_to_dir(write_dir, api.api, write_code)
+            # write_dir = ""
+            # if error == None:
+            #     # first check the correctness
+            #     if results[ERR_CPU_KEY] == None and results[ERR_GPU_KEY] == None:
+            #         try:
+            #             is_equal = self.is_equal(
+            #                 results[RES_CPU_KEY], results[RES_GPU_KEY], self.diff_bound
+            #             )
+            #         except Exception:
+            #             write_dir = join(self.output[oracle], "compare-bug")
+            #         else:
+            #             if is_equal:
+            #                 write_dir = join(self.output[oracle], "success")
+            #             else:
+            #                 write_dir = join(self.output[oracle], "potential-bug")
+            #     elif self.is_crash_msg(results[ERR_CPU_KEY]) or self.is_crash_msg(
+            #         results[ERR_GPU_KEY]
+            #     ):
+            #         write_dir = join(self.output[oracle], "potential-bug")
+            #     elif results[ERR_CPU_KEY] and results[ERR_GPU_KEY]:
+            #         write_dir = join(self.output[oracle], "success")
+            #         pass
+            #     elif self.is_error_msg(results[ERR_CPU_KEY]) != self.is_error_msg(
+            #         results[ERR_GPU_KEY]
+            #     ):
+            #         write_dir = join(self.output[oracle], "potential-bug")
+            #     else:
+            #         write_dir = join(self.output[oracle], "success")
+            # elif self.is_crash_msg(error):
+            #     write_dir = join(self.output[oracle], "potential-bug")
+            # else:
+            #     write_dir = join(self.output[oracle], "fail")
+            # self.write_to_dir(write_dir, api.api, write_code)
         elif oracle == OracleType.PRECISION:
             code = "import torch\n"
             code += "import time\n"
-            code += api.to_code(res=f'results["{TIME_LOW_KEY}"]', low_precision=True)
+            code += api.to_code(res=f'results["{TIME_LOW_KEY}"]',
+                                low_precision=True)
             code += api.to_diff_code(oracle, res=f'results["{TIME_HIGH_KEY}"]')
 
             write_code = "results = dict()\n" + code + "\nprint(results)\n"
@@ -103,7 +106,8 @@ class TorchLibrary(Library):
                     results[TIME_HIGH_KEY], float
                 ):
                     if (
-                        results[TIME_LOW_KEY] > self.time_bound * results[TIME_HIGH_KEY]
+                        results[TIME_LOW_KEY] > self.time_bound *
+                            results[TIME_HIGH_KEY]
                         and results[TIME_HIGH_KEY] > self.time_thresold
                     ):
                         write_dir = join(self.output[oracle], "potential-bug")
@@ -214,6 +218,16 @@ class TorchLibrary(Library):
         if error_msg == None:
             return False
         if "INTERNAL ASSERT" in error_msg:
+            return True
+        elif "Segmentation fault" in error_msg:
+            return True
+        elif "Aborted" in error_msg:
+            return True
+        elif "Killed" in error_msg:
+            return True
+        elif "Floating point exception" in error_msg:
+            return True
+        elif "core dumped" in error_msg:
             return True
         else:
             return False

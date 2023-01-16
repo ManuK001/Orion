@@ -4,6 +4,7 @@ from classes.argument import *
 from classes.api import *
 from classes.database import TorchDatabase
 from os.path import join
+import numpy as np
 
 
 class TorchArgument(Argument):
@@ -82,7 +83,7 @@ class TorchArgument(Argument):
                 dtype = self.low_precision_dtype(dtype)
                 max_value, min_value = self.random_tensor_value(dtype)
             suffix = ""
-            big_number = random.randint(100000, 100000000)
+            big_number = random.randint(1879048192, 161063793887434)
             if is_cuda:
                 suffix = ".cuda()"
             if dtype.is_floating_point:
@@ -107,11 +108,11 @@ class TorchArgument(Argument):
                 elif self.nan_input_tensor_whole:
                     code = f"{var_name}_tensor = np.nan \n"
                 elif self.scalar_input_flag:
-                    x = random.randint(100000, 1000000000)
+                    x = random.randint(1879048192, 161063793887434)
                     code = f"{var_name}_tensor = {x} \n"
                 elif self.large_tensor_flag1:
-                    min_val = random.randint(100000, 1000000000)
-                    max_val = random.randint(100000, 1000000000)
+                    min_val = random.randint(1879048192, 161063793887434)
+                    max_val = random.randint(1879048192, 161063793887434)
                     code = f"{var_name}_tensor = torch.randint({min_val},{max_val},{self.shape}, dtype={dtype})\n"
                 elif self.large_tensor_flag2:
                     code = f"{var_name}_tensor = torch.tensor([{big_number}], dtype={dtype})\n"
@@ -141,14 +142,14 @@ class TorchArgument(Argument):
                 elif self.nan_input_tensor_whole:
                     code = f"{var_name}_tensor = np.nan \n"
                 elif self.scalar_input_flag:
-                    x = random.randint(100000, 1000000000)
+                    x = random.randint(1879048192, 161063793887434)
                     code = f"{var_name}_tensor = {x} \n"
                 elif self.large_tensor_flag1:
-                    big_val = random.randint(100000, 1000000000)
+                    big_val = random.randint(1879048192, 161063793887434)
                     code = f"{var_name}_tensor = torch.full((1, 1, 1, 1, 1,), {big_val}, dtype={dtype})\n"
                 elif self.large_tensor_flag2:
-                    min_val = random.randint(100000, 1000000000)
-                    max_val = random.randint(100000, 1000000000)
+                    min_val = random.randint(1879048192, 161063793887434)
+                    max_val = random.randint(1879048192, 161063793887434)
                     code = f"{var_name}_tensor = torch.randint({min_val},{max_val},{self.shape}, dtype={dtype})\n"
                 else:
                     code = (
@@ -174,14 +175,14 @@ class TorchArgument(Argument):
                 elif self.nan_input_tensor_whole:
                     code = f"{var_name}_tensor = np.nan \n"
                 elif self.scalar_input_flag:
-                    x = random.randint(100000, 1000000000)
+                    x = random.randint(1879048192, 161063793887434)
                     code = f"{var_name}_tensor = {x} \n"
                 elif self.large_tensor_flag1:
-                    big_val = random.randint(100000, 1000000000)
+                    big_val = random.randint(1879048192, 161063793887434)
                     code = f"{var_name}_tensor = torch.full((1, 1, 1, 1, 1,), {big_val}, dtype={dtype})\n"
                 elif self.large_tensor_flag2:
-                    min_val = random.randint(100000, 1000000000)
-                    max_val = random.randint(100000, 1000000000)
+                    min_val = random.randint(1879048192, 161063793887434)
+                    max_val = random.randint(1879048192, 161063793887434)
                     code = f"{var_name}_tensor = torch.randint({min_val},{max_val},{self.shape}, dtype={dtype})\n"
                 else:
                     code = f"{var_name}_tensor = torch.randint(0,2,{self.shape}, dtype={dtype})\n"
@@ -379,7 +380,7 @@ class TorchArgument(Argument):
     """
 
     def make_int_negative(self, value) -> int:
-        value = random.randint(1, 1000)
+        value = random.randint(1, 100)
         new_value = -value
         return new_value
 
@@ -391,11 +392,16 @@ class TorchArgument(Argument):
     def make_tensor_negative(self) -> None:
         self.make_tensor_neg = True
 
+    def make_bool_inverse(self, value) -> bool:
+        return not value
+
     def mutate_negative(self) -> None:
         if self.type == ArgType.INT:
             self.value = self.make_int_negative(self.value)
         elif self.type == ArgType.FLOAT:
             self.value = self.make_float_negative(self.value)
+        elif self.type == ArgType.BOOL:
+            self.value = self.make_bool_inverse(self.value)
         elif self.type == ArgType.TUPLE or self.type == ArgType.LIST:
             for self in self.value:
                 self.mutate_negative()
@@ -415,10 +421,12 @@ class TorchArgument(Argument):
     def alter_tensor_shape(self, old_shape, reduction=True):
         new_shape = old_shape
         # Change rank
+        max_n = random.randint(1, 3)
         if reduction:
             new_shape.pop()
         else:
-            new_shape.append(1)
+            for i in range(max_n):
+                new_shape.append(max_n)
 
         return new_shape
 
@@ -506,17 +514,42 @@ class TorchArgument(Argument):
 
     def make_list_element_large(self):
         if self.type == ArgType.INT:
-            self.value = random.randint(12509, 125091515651)
+            self.value = random.randint(1250915, 125091515651)
         elif self.type == ArgType.FLOAT:
-            self.value = random.uniform(1000000.5, 20000000000.9)
+            self.value = random.uniform(0, 1)
         elif self.type == ArgType.TUPLE or self.type == ArgType.LIST:
             for self in self.value:
                 self.make_list_element_large()
         else:
             return
 
+    def mutate_preemptives(self) -> None:
+        if self.type == ArgType.INT:
+            self.value = np.nan
+        elif self.type == ArgType.FLOAT:
+            self.value = np.nan
+        elif self.type == ArgType.STR:
+            self.value = np.nan
+        elif self.type == ArgType.BOOL:
+            self.value = np.nan
+        elif self.type == ArgType.TUPLE or self.type == ArgType.LIST:
+            for self in self.value:
+                self.mutate_preemptives()
+        elif self.type == ArgType.TF_DTYPE:
+            self.value = choice(self._dtypes)
+        elif self.type == ArgType.TF_OBJECT:
+            self.value = None
+            pass
+        elif self.type == ArgType.NULL:
+            self.value = None
+            pass
+        else:
+            return
+
     def new_mutation_multiple(self, RULE=None):
-        if RULE == "NEGATE_INT_TENSOR":
+        if RULE == "MUTATE_PREEMPTIVES":
+            self.mutate_preemptives()
+        elif RULE == "NEGATE_INT_TENSOR":
             self.mutate_negative()
         elif RULE == "RANK_REDUCTION_EXPANSION":
             self.modify_rank()
@@ -548,7 +581,8 @@ class TorchArgument(Argument):
             return
 
     def increase_integer(self, value) -> int:
-        new_value = value + 1
+        new_value = random.randint(1, 1000)
+        val = -new_value
         return new_value
 
     def new_mutation(self, RULE=None):
@@ -556,8 +590,23 @@ class TorchArgument(Argument):
             self.value = self.increase_integer(self.value)
         elif self.type == ArgType.FLOAT:
             self.value = self.make_float_negative(self.value)
+        elif self.type == ArgType.BOOL:
+            self.value = self.make_bool_inverse(self.value)
+        elif self.type == ArgType.STR:
+            self.value = np.nan
+        elif self.type == ArgType.TUPLE or self.type == ArgType.LIST:
+            for self in self.value:
+                self.new_mutation()
         elif self.type == ArgType.TORCH_TENSOR:
             self.modify_rank()
+        elif self.type == ArgType.TORCH_DTYPE:
+            self.value = choice(self._dtypes)
+        elif self.type == ArgType.TORCH_OBJECT:
+            self.value = None
+            pass
+        elif self.type == ArgType.NULL:
+            self.value = None
+            pass
         else:
             return
 
@@ -571,14 +620,15 @@ class TorchAPI(API):
         self.is_class = inspect.isclass(eval(self.api))
 
     def new_mutate_multiple(self, arg, r):
-        enable_type = True
-        if enable_type and do_type_mutation():
+        if do_type_mutation():
             arg.mutate_type()
         arg.new_mutation_multiple(r)
 
     def new_mutate_torch(self):
         for p in self.args:
             arg = self.args[p]
+            if do_type_mutation():
+                arg.mutate_type()
             arg.new_mutation()
 
     def mutate(self, enable_value=True, enable_type=True, enable_db=True):

@@ -25,5 +25,9 @@ def do_type_mutation() -> bool:
     return rand() < 0.2
 
 
+def change_dim() -> bool:
+    return rand() < 0.4
+
+
 def do_select_from_db() -> bool:
     return rand() < 0.2

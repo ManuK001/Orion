@@ -1,0 +1,10 @@
+torch.nn.functional.local_response_norm
+torch.Tensor.log1p_
+torch.Tensor.rsqrt_
+torch.nn.LayerNorm
+torch.set_grad_enabled
+torch.Tensor.cos_
+torch.nn.MaxUnpool3d
+torch.nn.utils.parametrize.ParametrizationList
+torch.Tensor.addcdiv_
+torch.var

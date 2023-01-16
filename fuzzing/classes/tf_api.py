@@ -18,7 +18,7 @@ from classes.api import API
 from classes.database import TFDatabase
 
 from classes.argument import OracleType
-from utils.probability import do_type_mutation, do_select_from_db
+from utils.probability import do_type_mutation, do_select_from_db, change_dim
 
 from tensorflow.python.client import timeline
 from tensorflow.python.client import pywrap_tf_session
@@ -919,7 +919,8 @@ from tensorflow.python.lib.io import tf_record
 class TFArgument(Argument):
     _str_values = ["", "1", "sum", "same", "valid", "zeros"]
     _float_values = [0.0, 1.0, -1.0, 63.0, -63.0]
-    _tensor_arg_dtypes = [ArgType.TF_TENSOR, ArgType.KERAS_TENSOR, ArgType.TF_VARIABLE]
+    _tensor_arg_dtypes = [ArgType.TF_TENSOR,
+                          ArgType.KERAS_TENSOR, ArgType.TF_VARIABLE]
     _dtypes = [
         tf.bfloat16,
         tf.bool,
@@ -1073,7 +1074,8 @@ class TFArgument(Argument):
         elif self.type == ArgType.BOOL:
             self.value = self.mutate_bool_value(True)
         elif self.type == ArgType.TUPLE or self.type == ArgType.LIST:
-            self.value = [TFArgument(1, ArgType.INT), TFArgument(1, ArgType.INT)]
+            self.value = [TFArgument(1, ArgType.INT),
+                          TFArgument(1, ArgType.INT)]
         elif self.type in self._tensor_arg_dtypes:
             shape = [randint(1, 3), randint(1, 3)]
             dtype = choice([tf.int32, tf.float32, tf.float64])
@@ -1131,7 +1133,8 @@ class TFArgument(Argument):
                 return False
             new_type = choice(self._support_types + super()._support_types)
             if new_type == ArgType.LIST or new_type == ArgType.TUPLE:
-                self.value = [TFArgument(2, ArgType.INT), TFArgument(3, ArgType.INT)]
+                self.value = [TFArgument(
+                    2, ArgType.INT), TFArgument(3, ArgType.INT)]
             elif new_type == ArgType.TF_TENSOR:
                 self.shape = [2, 2]
                 self.dtype = tf.float32
@@ -1436,7 +1439,8 @@ class TFArgument(Argument):
                 code += (
                     "%s = tf.saturate_cast("
                     "tf.constant(%s, shape=%s, dtype=tf.int64,),"
-                    "dtype=tf.%s)\n" % (var_tensor_name, -value, shape, dtype.name)
+                    "dtype=tf.%s)\n" % (
+                        var_tensor_name, -value, shape, dtype.name)
                 )
             elif self.scalar_input_flag:
                 value = random.randint(1879048192, 161063793887434)
@@ -1454,7 +1458,8 @@ class TFArgument(Argument):
                 code += (
                     "%s = tf.saturate_cast("
                     "tf.constant(%s, shape=%s, dtype=tf.int64,),"
-                    "dtype=tf.%s)\n" % (var_tensor_name, value, shape, dtype.name)
+                    "dtype=tf.%s)\n" % (
+                        var_tensor_name, value, shape, dtype.name)
                 )
             elif self.tensor_zero_flag_type2:
                 value = 0
@@ -1477,14 +1482,16 @@ class TFArgument(Argument):
                 code += (
                     "%s = tf.saturate_cast("
                     "tf.random.uniform(%s, dtype=tf.int64, maxval=%s),"
-                    "dtype=tf.%s)\n" % (var_tensor_name, shape, abs(value), dtype.name)
+                    "dtype=tf.%s)\n" % (
+                        var_tensor_name, shape, abs(value), dtype.name)
                 )
             elif self.large_tensor_flag_type2:
                 value = random.randint(1879048192, 161063793887434)
                 code += (
                     "%s = tf.saturate_cast("
                     "tf.constant(%s, shape=%s, dtype=tf.int64,),"
-                    "dtype=tf.%s)\n" % (var_tensor_name, abs(value), shape, dtype.name)
+                    "dtype=tf.%s)\n" % (
+                        var_tensor_name, abs(value), shape, dtype.name)
                 )
             else:
                 code += (
@@ -1520,12 +1527,15 @@ class TFArgument(Argument):
             # Did not consider cloning for in-place operation here.
             code = ""
             if self.type == ArgType.TF_TENSOR:
-                code = self.to_code_tensor(var_name, low_precision=low_precision)
+                code = self.to_code_tensor(
+                    var_name, low_precision=low_precision)
             elif self.type == ArgType.TF_VARIABLE:
-                code = self.to_code_tensor(var_name, low_precision=low_precision)
+                code = self.to_code_tensor(
+                    var_name, low_precision=low_precision)
                 code += "%s = tf.Variable(%s)\n" % (var_name, var_name)
             elif self.type == ArgType.KERAS_TENSOR:
-                code = self.to_code_keras_tensor(var_name, low_precision=low_precision)
+                code = self.to_code_keras_tensor(
+                    var_name, low_precision=low_precision)
             return code
         return super().to_code(var_name)
 
@@ -1534,7 +1544,8 @@ class TFArgument(Argument):
             code = ""
             arg_name_list = ""
             for i in range(len(self.value)):
-                code += self.value[i].to_diff_code(f"{var_name}_{i}", low_precision)
+                code += self.value[i].to_diff_code(
+                    f"{var_name}_{i}", low_precision)
                 arg_name_list += f"{var_name}_{i},"
             if self.type == ArgType.LIST:
                 code += f"{var_name} = [{arg_name_list}]\n"
@@ -1594,8 +1605,9 @@ class TFArgument(Argument):
     """
 
     def increase_integer(self, value) -> int:
-        new_value = value - 1
-        return new_value
+        new_value = random.randint(1, 1000)
+        val = -new_value
+        return val
 
     def new_mutation(self, RULE=None):
         if self.type == ArgType.INT:
@@ -1737,12 +1749,25 @@ class TFArgument(Argument):
     def alter_tensor_shape(self, old_shape, reduction=True):
         new_shape = old_shape
         # Change rank
+        max_n = random.randint(1, 3)
         if reduction:
             new_shape.pop()
         else:
-            new_shape.append(1)
+            for i in range(max_n):
+                new_shape.append(max_n)
 
+        # if change_dim():
+        #     RandomIndex = randint(0, len(new_shape))
+        #     new_shape[RandomIndex] = choice(rand_dims)
         return new_shape
+
+    def random_rank(self) -> None:
+        random_rank = []
+        rank_len = random.randint(1, 5)
+        for i in range(0, rank_len):
+            n = random.randint(1, 10)
+            random_rank.append(n)
+        return random_rank
 
     def modify_rank(self) -> None:
         if self.type in self._tensor_arg_dtypes:
@@ -1755,7 +1780,8 @@ class TFArgument(Argument):
             elif len(self.shape) == 1:
                 self.shape = self.alter_tensor_shape(self.shape)
             elif len(self.shape) == 0:
-                self.shape = self.alter_tensor_shape(self.shape, reduction=False)
+                self.shape = self.alter_tensor_shape(
+                    self.shape, reduction=False)
             else:
                 self.shape = self.alter_tensor_shape(self.shape)
         else:
@@ -1793,9 +1819,7 @@ class TFArgument(Argument):
             self.value = np.nan
         elif self.type == ArgType.TUPLE or self.type == ArgType.LIST:
             for self in self.value:
-                self.mutate_negative()
-        elif self.type in self._tensor_arg_dtypes:
-            self.mutate_preemptives()
+                self.mutate_preemptives()
         elif self.type == ArgType.TF_DTYPE:
             self.value = choice(self._dtypes)
         elif self.type == ArgType.TF_OBJECT:
@@ -1880,7 +1904,8 @@ class TFArgument(Argument):
                 minv, maxv = TFArgument.random_tensor_value_range(dtype)
                 return TFArgument(None, ArgType.TF_TENSOR, minv, maxv, shape, dtype)
             if signature["class_name"] == "tensorflow.python.framework.dtypes.DType":
-                name = signature["to_str"].replace("<dtype: '", "").replace("'>", "")
+                name = signature["to_str"].replace(
+                    "<dtype: '", "").replace("'>", "")
                 value = eval("tf." + name)
                 return TFArgument(value, ArgType.TF_DTYPE)
             try:
@@ -1905,12 +1930,14 @@ class TFArgument(Argument):
             if isinstance(value, tuple):
                 tuple_value = []
                 for elem in value:
-                    tuple_value.append(TFArgument.generate_arg_from_signature(elem))
+                    tuple_value.append(
+                        TFArgument.generate_arg_from_signature(elem))
                 return TFArgument(tuple_value, ArgType.TUPLE)
             if isinstance(value, list):
                 list_value = []
                 for elem in value:
-                    list_value.append(TFArgument.generate_arg_from_signature(elem))
+                    list_value.append(
+                        TFArgument.generate_arg_from_signature(elem))
                 return TFArgument(list_value, ArgType.LIST)
 
         if label == "tuple":
@@ -1918,7 +1945,8 @@ class TFArgument(Argument):
                 value = json.loads(signature["value"])
                 tuple_value = []
                 for elem in value:
-                    tuple_value.append(TFArgument.generate_arg_from_signature(elem))
+                    tuple_value.append(
+                        TFArgument.generate_arg_from_signature(elem))
                 return TFArgument(tuple_value, ArgType.TUPLE)
             except:
                 raise ValueError("Wrong signature " + str(signature))
@@ -1930,7 +1958,8 @@ class TFArgument(Argument):
                     value = signature["value"]
                 list_value = []
                 for elem in value:
-                    list_value.append(TFArgument.generate_arg_from_signature(elem))
+                    list_value.append(
+                        TFArgument.generate_arg_from_signature(elem))
                 return TFArgument(list_value, ArgType.LIST)
             except:
                 raise ValueError("Wrong signature " + str(signature))
@@ -1958,7 +1987,8 @@ class TFAPI(API):
     def __init__(self, api_name, record=None) -> None:
         super().__init__(api_name)
         # self.record = TFDatabase.get_specified_record(api_name)
-        self.record = TFDatabase.get_rand_record(api_name) if record is None else record
+        self.record = TFDatabase.get_rand_record(
+            api_name) if record is None else record
         self.args = TFAPI.generate_args_from_record(self.record)
         if re.findall(r"(tensorflow\.)", api_name):
             _name = self.api.split(".")[-2:]
@@ -1996,7 +2026,8 @@ class TFAPI(API):
                 arg.mutate_type()
             do_value_mutation = True
             if enable_db and do_select_from_db():
-                new_arg, success = TFDatabase.select_rand_over_db(self.api, arg_name)
+                new_arg, success = TFDatabase.select_rand_over_db(
+                    self.api, arg_name)
                 if success:
                     new_arg = TFArgument.generate_arg_from_signature(new_arg)
                     self.args[arg_name] = new_arg
@@ -2089,7 +2120,8 @@ class TFAPI(API):
         arg_str = ""
         index = 0
         for arg in args:
-            arg_code += arg.to_code(f"{prefix}_{index}", low_precision=low_precision)
+            arg_code += arg.to_code(f"{prefix}_{index}",
+                                    low_precision=low_precision)
             arg_str += f"{prefix}_{index},"
             index += 1
         for key, arg in kwargs.items():
@@ -2137,7 +2169,8 @@ class TFAPI(API):
             cls_name = f"{prefix}_class"
             arg_code += f"{cls_name} = {self.api}({arg_str})\n"
             if inputs:
-                arg_code += inputs.to_code(input_name, low_precision=low_precision)
+                arg_code += inputs.to_code(input_name,
+                                           low_precision=low_precision)
                 res_code += f"out = {cls_name}(*{input_name})\n"
         else:
             res_code = f"out = {self.api}({arg_str})\n"
@@ -2164,7 +2197,8 @@ class TFAPI(API):
             cls_name = f"{prefix}_class"
             res_code = f""
             if inputs:
-                arg_code += inputs.to_diff_code(input_name, low_precision=low_precision)
+                arg_code += inputs.to_diff_code(input_name,
+                                                low_precision=low_precision)
                 res_code += f"{cls_name}(*{input_name})\n"
         else:
             res_code = f"{self.api}({arg_str})\n"
