@@ -3,7 +3,7 @@ https://www.tensorflow.org/tutorials/generative/adversarial_fgsm, 1
 https://www.tensorflow.org/tutorials/generative/deepdream, 1
 https://www.tensorflow.org/tutorials/generative/style_transfer, 1
 https://www.tensorflow.org/guide/distributed_training, 2
-https://www.tensorflow.org/tutorials/customization/basics
+https://www.tensorflow.org/tutorials/customization/basics, 1
 https://www.tensorflow.org/tutorials/customization/custom_layers, 3
 https://www.tensorflow.org/tutorials/customization/custom_training_walkthrough, 1
 https://www.tensorflow.org/tutorials/images/cnn, 1

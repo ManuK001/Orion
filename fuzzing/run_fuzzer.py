@@ -144,7 +144,7 @@ def run_fuzzer(args):
     round_exp = args.experiment_round
     config_name = args.config_dir
 
-    tf_output_dir = f"/media/nimashiri/SSD/testing_results/{tool}"
+    tf_output_dir = f"/media/nimashiri/SSD/testing_results/{tool}/{library}"
 
     if not os.path.exists(tf_output_dir):
         os.makedirs(tf_output_dir, exist_ok=True)
@@ -237,6 +237,8 @@ def run_fuzzer(args):
                     print("API Skipped!")
             else:
                 print("This module does not exist in tensorflow")
+        else:
+            print('API already tested!')
 
 
 if __name__ == "__main__":

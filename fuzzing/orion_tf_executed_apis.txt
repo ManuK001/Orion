@@ -1548,8 +1548,7 @@ tensorflow.python.framework.sparse_tensor.is_sparse
 tensorflow.python.ops.gen_logging_ops.scalar_summary
 tf.lite.experimental.authoring.compatible
 tensorflow.python.ops.stateless_random_ops.split
-tensorflow.python.data.experimental.ops.scan_ops.scan
-tensorflow.python.eager.wrap_function.wrap_function
+tensorflow.python.data.experimental.ops.scan_ops.scantensorflow.python.eager.wrap_function.wrap_function
 tensorflow.python.data.util.sparse.serialize_many_sparse_tensors
 tensorflow.python.ops.while_v2._pack_sequence_as
 tensorflow.python.ops.ragged.ragged_string_ops.ngrams
@@ -3117,6 +3116,9 @@ tensorflow.python.ops.gen_sparse_ops.sparse_sparse_maximum
 tensorflow.python.ops.math_ops.saturate_cast
 tf.keras.applications.inception_v3.preprocess_input
 tensorflow.python.ops.variable_scope._get_slice_dim_and_num_slices
+tensorflow.python.ops.gen_nn_ops.relu6_gradtensorflow.python.data.experimental.ops.scan_ops.scan
+tensorflow.python.data.experimental.ops.scan_ops.scan
+tensorflow.python.eager.wrap_function.wrap_function
 tensorflow.python.ops.gen_nn_ops.relu6_grad
 tensorflow.python.ops.gen_array_ops.one_hot
 tf.ones

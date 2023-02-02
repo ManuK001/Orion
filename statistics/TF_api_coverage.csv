@@ -1,7 +1,6 @@
 tensorflow.python.eager.remote.connect_to_cluster,tests
 tensorflow.python.saved_model.model_utils.mode_keys.is_eval,tests
 tensorflow.python.framework.error_interpolation._sources_for_node,tests
-tf.keras.preprocessing.text_dataset_from_directory,models
 tensorflow.python.framework.ops._get_outer_context_and_inner_device_stack,tests
 tf.keras.layers.reshaping.flatten.Flatten,models
 tensorflow.python.ops.math_ops.reduce_max,tests
@@ -373,6 +372,7 @@ tensorflow.python.ops.nn_ops.convolution_internal,tests
 tensorflow.python.distribute.distribute_utils.is_distributed_variable,tests
 tensorflow.python.saved_model.model_utils.export_utils.get_temp_export_dir,tests
 tf.tensorflow.python.keras.losses.SparseCategoricalCrossentropy,models
+tensorflow.python.util.compat.as_bytes,tests
 tensorflow.python.distribute.input_lib._create_datasets_from_function_with_input_context,tests
 tensorflow.python.ops.map_ops.tensor_map_size,tests
 tensorflow.python.eager.context.graph_mode,tests
@@ -3122,6 +3122,7 @@ tensorflow.python.training.optimizer._deduplicate_indexed_slices,tests
 tensorflow.python.distribute.distribute_lib.get_loss_reduction,tests
 tensorflow.python.ops.gen_nn_ops.max_pool_grad_grad_with_argmax,tests
 tensorflow.python.ops.embedding_ops._embedding_lookup_and_transform,tests
+tensorflow.python.framework.constant_op._constant_impl,tests
 tensorflow.python.keras.regularizers.tensorflow.python.keras.regularizers.L2,tests
 tensorflow.python.ops.check_ops._assert_rank_condition,tests
 tensorflow.python.util.deprecation.deprecated_argument_lookup,tests

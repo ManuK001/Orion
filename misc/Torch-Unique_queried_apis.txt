@@ -321,7 +321,6 @@ torch.triu
 torch.Tensor.negative_
 torch.Tensor.triu
 torch.sin
-torch.nn.functional.soft_margin_losstorch.diag_embed
 torch.nn.functional.soft_margin_loss
 torch.diag_embed
 torch.normal
@@ -684,7 +683,8 @@ torch.vdot
 torch.Tensor.q_per_channel_scales
 torch.Tensor.mean
 torch.Tensor.quantile
-torch.Tensor.new_fulltorch.isinf
+torch.Tensor.new_full
+torch.isinf
 torch.Tensor.mul
 torch.Tensor.diagflat
 torch.Tensor.squeeze
@@ -1009,8 +1009,6 @@ torch.remainder
 torch.nn.SiLU
 torch.lt
 torch.minimum
-torch.Tensor.new_full
-torch.isinf
 torch.nn.functional.silu
 torch.nn.functional.gelu
 torch.sum

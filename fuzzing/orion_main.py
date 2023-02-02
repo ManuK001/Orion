@@ -104,7 +104,7 @@ if __name__ == "__main__":
         dimension_mismatch = True
 
         try:
-            for k in range(5):
+            for k in range(1):
                 # api = TFAPI(api_name)
                 # old_api = copy.deepcopy(api)
 
@@ -144,28 +144,30 @@ if __name__ == "__main__":
                 if api_keywords.count("tensorflow") > 1:
                     api_name = make_api_name_unique(api_name)
 
-                for c2 in range(1000):
-                    old_api = TFAPI(api_name)
-                    for i, arg in enumerate(old_api.args):
+                for c1 in range(1000):
+                    api = TFAPI(api_name)
+                    num_arg = len(api.args)
+                    num_Mutation = random.randint(1, num_arg + 1)
+                    for _ in range(num_Mutation):
+                        arg_name = random.choice(list(api.args.keys()))
+                        arg = api.args[arg_name]
                         for r in rules:
                             print(
                                 "########################################################################################################################"
                             )
                             print(
                                 "Running {0} on the current API under test: ###{1}###. Index: {2} Mutating the parameter ###{3}### using the rule ###{4}###, Iteration: {5}".format(
-                                    tool_name, api_name, index, arg, r, c2
+                                    tool_name, api_name, index, arg_name, r, c1
                                 )
                             )
                             print(
                                 "########################################################################################################################"
                             )
-                            old_arg = copy.deepcopy(old_api.args[arg])
-                            old_api.new_mutate_multiple(old_api.args[arg], r)
-                            MyTF.test_with_oracle(old_api, OracleType.CRASH)
-                            old_api.api = api_name
-                            MyTF.test_with_oracle(old_api, OracleType.CUDA)
-                            old_api.api = api_name
-                            old_api.args[arg] = old_arg
+                            api.new_mutate_multiple(arg, r)
+                            MyTF.test_with_oracle(api, OracleType.CRASH)
+                            api.api = api_name
+                            MyTF.test_with_oracle(api, OracleType.CUDA)
+                            api.api = api_name
         except Exception as e:
             pass
     else:
