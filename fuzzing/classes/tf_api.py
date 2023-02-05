@@ -1267,7 +1267,7 @@ class TFArgument(Argument):
                 value1 = random.randint(1879048192, 161063793887434)
                 value2 = random.randint(1879048192, 161063793887434)
                 code += f"{var_tensor_name} = tf.complex(tf.constant({-value1}, shape={shape}, dtype=tf.{ftype}), tf.constant({-value2}, shape={shape}, dtype=tf.{ftype}))\n"
-            elif self.scalar_input_flag:    
+            elif self.scalar_input_flag:
                 value = random.randint(1, 1000)
                 code += f"{var_tensor_name} = {value} \n"
             elif self.nan_input_tensor:

@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup as soup
 from numpy import isin
-from selenium import webdriver
+#from selenium import webdriver
 # driver = webdriver.Firefox(executable_path= r"/home/nimashiri/geckodriver-v0.32.0-linux64/geckodriver")
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
@@ -13,6 +13,9 @@ import json
 import requests
 import os
 import numpy as np
+import sys
+
+import argparse
 
 ROOT_MODULES = ['tf', 'tf.compat.v1']
 ROOT_DIR = os.getcwd()
@@ -118,9 +121,9 @@ def recursive_parse_api_sequence(data):
             return recursive_parse_api_sequence(elem)
 
 def scrape_torch_v2():
-    data = pd.read_csv('/media/nimashiri/DATA/vsprojects/FSE23_2/data/torch/api_root_torch.csv')
+    data = pd.read_csv('/media/nimashiri/SSD/FSE23_2/data/torch/api_root_torch.csv')
 
-    history_addr = '/media/nimashiri/DATA/vsprojects/FSE23_2/scrapers/history_torch.txt'
+    history_addr = 'scrapers/history_torch.txt'
 
     if not os.path.exists(history_addr):
         f1 = open(history_addr, 'a') 
@@ -216,7 +219,7 @@ def scrape_torch_v2():
                 my_data = [token_sequence_api, token_sequence_descp]
                 my_data = my_data + temp
 
-                with open('/media/nimashiri/DATA/vsprojects/FSE23_2/scrapers/torch_APIs_signatures.csv', 'a', newline='\n') as fd:
+                with open('torch_APIs_signatures.csv', 'a', newline='\n') as fd:
                     writer_object = writer(fd)
                     writer_object.writerow(my_data)
 
@@ -337,16 +340,15 @@ def search_dict(d, q):
 
 
 def scrape_tensorflow_symbols(all_symbols_link):
-    tf_data = pd.read_csv('/media/nimashiri/SSD1/FSE23_2/scrapers/tf_symbols.csv', sep=',', encoding='utf-8')
+    tf_data = pd.read_csv('data/tf/tf_apis/tf_symbols.csv', sep=',', encoding='utf-8')
 
-    history_addr = '/media/nimashiri/SSD1/FSE23_2/scrapers/history_tf.txt'
+    history_addr = 'scrapers/scrape_history_tf.txt'
 
     if not os.path.exists(history_addr):
         f1 = open(history_addr, 'a') 
 
     hist = read_txt(history_addr)
     
-
     for idx, api in tf_data.iterrows():
                     if api['API'] not in hist:
                         write_list_to_txt4(api['API'], history_addr)
@@ -416,7 +418,7 @@ def scrape_tensorflow_symbols(all_symbols_link):
 
                             if i_found_api_sig:
                                 my_data = [signature_, token_sequence_descp, temp]
-                                with open('/media/nimashiri/SSD1/FSE23_2/scrapers/tf_APIs_signatures.csv', 'a', newline='\n') as fd:
+                                with open('tf_APIs_signatures.csv', 'a', newline='\n') as fd:
                                     writer_object = writer(fd)
 
                                     writer_object.writerow(my_data)
@@ -427,7 +429,7 @@ def scrape_tensorflow_symbols(all_symbols_link):
 
 
 def scrape_mxnet():
-    _path = '/media/nimashiri/DATA/vsprojects/FSE23_2/scrapers/mxnet_apis.json'
+    _path = 'scrapers/mxnet_apis.json'
     jsonfile = open(_path, 'a', encoding='utf-8')
     jsonfile.write('[')
 
@@ -541,14 +543,13 @@ def scrape_mxnet():
                             writer_object = writer(fd)
                             writer_object.writerow(my_data)
 
-def main():
-    all_symbols_link = 'https://www.tensorflow.org/api_docs/python/tf/all_symbols'
+def main(args):
 
-    code = 'tf'
-
-    if code == 'tf':
+    library = args.library
+    if library == 'tensorflow':
+        all_symbols_link = 'https://www.tensorflow.org/api_docs/python/tf/all_symbols'
         scrape_tensorflow_symbols(all_symbols_link)
-    elif code == 'torch':
+    elif library == 'pytorch':
         scrape_torch_v2()
     else:
         scrape_mxnet()
@@ -567,5 +568,16 @@ def count_examples():
 
 
 if __name__ == '__main__':
-    main()
-    # count_examples()
+    Epilog = """An example usage: python scrape.py --library=tensorflow"""
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     description='Scrape TensorFlow and PyTorch API reference documentation page to collect API names and signature.', epilog=Epilog)
+
+    parser.add_argument('--library', type=str,
+                        help='Please enter the name of the database.')
+
+    args = parser.parse_args()
+    if args.library == None:
+        parser.print_help()
+        sys.exit(-1)
+    
+    main(args)
