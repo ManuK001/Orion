@@ -67,8 +67,9 @@ To collect high-level API names, we use [beautiful-soup](https://beautiful-soup-
 
 
 ```
-python scrape.py
+python scrape.py --library=tensorflow
 ```
+Or ```pytorch``` if you want to scrapt PyTorch API names and signatures.
 
 ### Internal APIs
 
